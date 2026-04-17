@@ -110,25 +110,136 @@ docker run --rm -p 8501:8501 --env-file .env ai-aws-cspm streamlit run dashboard
 
 ```
 ai-aws-cspm/
-...
+│
+├── dashboard/
+│   └── app.py                 # Streamlit web interface (5 pages)
+│
+├── src/
+│   ├── collectors/            # AWS data collection
+│   │   ├── base_collector.py  # Parent class for all collectors
+│   │   ├── s3_collector.py    # S3 bucket scanner
+│   │   ├── iam_collector.py   # IAM user/role scanner
+│   │   ├── ec2_collector.py   # EC2 instance scanner
+│   │   └── rds_collector.py   # RDS database scanner
+│   │
+│   ├── ai/                    # AI and analytics
+│   │   ├── ai_client.py       # Ollama API wrapper
+│   │   ├── remediation_gen.py # Generates fix suggestions
+│   │   ├── risk_scorer.py     # Calculates security scores
+│   │   ├── compliance_mapper.py # Maps to compliance frameworks
+│   │   └── security_score.py  # Unified scoring engine
+│   │
+│   ├── alerts/                # Notification system
+│   │   ├── email_alerter.py   # SMTP email alerts
+│   │   └── slack_alerter.py   # Slack webhook alerts
+│   │
+│   └── utils/                 # Helper modules
+│       ├── history_manager.py # Historical tracking
+│       └── scheduler.py       # Automated scheduling
+│
+├── scripts/                   # Executable scripts
+│   ├── run_all_scanners.py   # Run all collectors
+│   ├── run_with_ai.py        # Add AI remediation
+│   ├── run_with_scoring.py   # Full assessment
+│   └── run_automated.py      # Automated with alerts
+│
+├── data/                      # Scan results (JSON)
+│   ├── full_assessment.json   # Latest scan
+│   ├── scan_history.json      # Historical trends
+│   └── automation_log.json    # Automated run log
+│
+├── Dockerfile                 # Docker container recipe
+├── docker-compose.yml         # Multi-container setup
+├── requirements.txt           # Python dependencies
+└── README.md                  # This file
 ```
 
 ## 📊 Sample Output
 
 ```
+======================================================================
 🔒 AI AWS CSPM - Complete Security Assessment
-...
+======================================================================
+
+📊 Found 3 security issue(s)
+
+🤖 Generating AI remediation...
+✅ Remediation complete for 3 finding(s)
+
+🎯 Security Score: 81.6%
+📝 Grade: B
+⚠️ Risk Score: 88.0%
+📋 Compliance Score: 66.6%
+
+🔴 CRITICAL: 0
+🟠 HIGH: 2
+🟡 MEDIUM: 1
+🔵 LOW: 0
+
+📜 Compliance Summary:
+   CIS    [███░░░░░░░] 33.3%
+   NIST   [███░░░░░░░] 33.3%
+   GDPR   [███░░░░░░░] 33.3%
+   HIPAA  [██████████] 100.0%
+   PCI    [██████████] 100.0%
+   SOX    [██████████] 100.0%
 ```
 
 ## 🏗️ Architecture
 
 ```
-(Streamlit → Scanners → AI → Output)
+┌─────────────────────────────────────────────────────────────────┐
+│                         USER INTERFACE                           │
+│                      Streamlit Dashboard                         │
+│                    (http://localhost:8501)                       │
+└─────────────────────────────┬───────────────────────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                      APPLICATION LAYER                           │
+├───────────────┬───────────────┬───────────────┬─────────────────┤
+│   S3 Scanner  │  IAM Scanner  │  EC2 Scanner  │  RDS Scanner    │
+│   (boto3)     │   (boto3)     │   (boto3)     │   (boto3)       │
+└───────────────┴───────────────┴───────────────┴─────────────────┘
+                              │
+                              ▼
+┌─────────────────────────────────────────────────────────────────┐
+│                        AI & ANALYTICS                            │
+├─────────────────┬─────────────────┬─────────────────────────────┤
+│  AI Remediation │  Risk Scoring    │  Compliance Mapping         │
+│    (Ollama)     │  (0-100 Scale)   │  (CIS/NIST/GDPR)            │
+└─────────────────┴─────────────────┴─────────────────────────────┘
 ```
 
 ## 🔒 Security Checks Implemented
 
-Includes checks across S3, IAM, EC2, and RDS with severity classification.
+### S3 Scanner
+| Check | Severity | Why Important |
+| :---- | :----- | :---- |
+| Public bucket access | CRITICAL |	Data exposure to anyone on internet |
+|Encryption disabled | HIGH	| Data at risk if storage stolen |
+|Versioning disabled | MEDIUM |	Accidental/permanent deletion risk |
+|Logging disabled |	MEDIUM | No audit trail of access |
+### IAM Scanner
+| Check | Severity | Why Important |
+| :---- | :------ | :---- |
+|Root user MFA	|CRITICAL|	Root account takeover risk|
+|No password policy	|HIGH	| Users can choose weak passwords|
+|Users without MFA	|HIGH	|Account takeover risk|
+|Admin policies	|MEDIUM	|Over-privileged accounts|
+### EC2 Scanner
+| Check | Severity | Why Important |
+| :--- | :----| :--- |
+|Open SSH/RDP ports	|CRITICAL	|Direct attacker access|
+|Public IP addresses	|MEDIUM	|Increased attack surface|
+|Unencrypted volumes	|HIGH	|Data at risk|
+### RDS Scanner
+| Check | Severity | Why Important |
+| :--- | :---- | :--- |
+|Public database access	|CRITICAL|	Direct database exposure|
+|Encryption disabled	|HIGH	|Data stored unsecured|
+|Short backup retention	|MEDIUM|	Data loss risk|
+```
 
 ## 📈 Risk Scoring Formula
 
