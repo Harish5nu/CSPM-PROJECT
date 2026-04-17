@@ -167,24 +167,12 @@ requests>=2.31.0
 pydantic>=2.5.0
 ```
 
-## 🤝 Contributing
-
-PRs welcome.
-
-## 📄 License
-
-MIT License
 
 ## 👨‍💻 Author
 
-Your Name
+Harish Saud
 
 ## ⭐ Show Your Support
 
 Give a ⭐ on GitHub.
 
-## 📞 Contact
-
-Open an issue.
-
-Built with 🔒
