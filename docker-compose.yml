@@ -1,0 +1,42 @@
+# docker-compose.yml
+version: '3.8'
+
+services:
+  # Ollama AI Service (runs the LLM)
+  ollama:
+    image: ollama/ollama:latest
+    container_name: ai-aws-cspm-ollama
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    restart: unless-stopped
+    command: serve
+
+  # Security Scanner App
+  security-scanner:
+    build: .
+    container_name: ai-aws-cspm-scanner
+    depends_on:
+      - ollama
+    environment:
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - AWS_DEFAULT_REGION=${AWS_DEFAULT_REGION}
+      - OLLAMA_HOST=http://ollama:11434
+      - SLACK_WEBHOOK_URL=${SLACK_WEBHOOK_URL}
+      - SMTP_SERVER=${SMTP_SERVER}
+      - SMTP_PORT=${SMTP_PORT}
+      - SENDER_EMAIL=${SENDER_EMAIL}
+      - SENDER_PASSWORD=${SENDER_PASSWORD}
+      - RECIPIENT_EMAIL=${RECIPIENT_EMAIL}
+    volumes:
+      - ./data:/app/data
+    ports:
+      - "8501:8501"
+    restart: unless-stopped
+    # Different commands you can run:
+    command: ["streamlit", "run", "dashboard/app.py", "--server.address=0.0.0.0"]
+
+volumes:
+  ollama_data:
