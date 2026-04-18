@@ -47,7 +47,7 @@ An **AI-powered Cloud Security Posture Management (CSPM)** tool that automatical
 ### Installation
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/ai-aws-cspm.git
+git clone https://github.com/Harish5nu/CSPM-PROJECT.git
 cd ai-aws-cspm
 
 python -m venv venv
